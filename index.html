@@ -331,24 +331,46 @@ window.addEventListener('resize', () => {
   }
 
   #gallery-frame {
-    width: min(32vw, 380px);
-    aspect-ratio: 3/4;
+    width: min(42vw, 480px);
+    aspect-ratio: 4/5;
     background: transparent;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
   }
 
   #gallery-frame::before { display: none; }
 
+  #gallery-img-wrap {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  #gallery-img-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 28%;
+    background: linear-gradient(to top, rgba(0,0,0,0.88), transparent);
+    pointer-events: none;
+    z-index: 3;
+    border-radius: 0 0 2px 2px;
+  }
+
   #gallery-img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    object-fit: contain;
     display: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
   }
 
   #gallery-placeholder {
@@ -445,7 +467,9 @@ window.addEventListener('resize', () => {
 <div id="gallery-ui">
   <div id="gallery-label">// evidence room</div>
   <div id="gallery-frame">
-    <img id="gallery-img" src="" alt="">
+    <div id="gallery-img-wrap">
+      <img id="gallery-img" src="" alt="">
+    </div>
     <div id="gallery-placeholder">
       <div id="gallery-placeholder-rect"></div>
     </div>
@@ -482,6 +506,7 @@ function updateGallery() {
   counter.textContent = `${current + 1} / ${images.length}`;
   img.src = images[current];
   img.style.display = 'block';
+  document.getElementById('gallery-img-wrap').style.display = 'flex';
   placeholder.style.display = 'none';
 }
 
