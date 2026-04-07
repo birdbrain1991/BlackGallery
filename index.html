@@ -334,11 +334,7 @@ window.addEventListener('resize', () => {
     width: min(42vw, 480px);
     background: transparent;
     border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     position: relative;
-    overflow: visible;
   }
 
   #gallery-frame::before { display: none; }
@@ -347,13 +343,9 @@ window.addEventListener('resize', () => {
   #gallery-img-wrap {
     position: relative;
     width: 100%;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
   }
 
-  #gallery-img-wrap::after {
-    content: '';
+  #gallery-img-wrap .fade-div {
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 30%;
@@ -366,11 +358,21 @@ window.addEventListener('resize', () => {
   #gallery-img {
     width: 100%;
     height: auto;
-    object-fit: contain;
     display: none;
     cursor: pointer;
     position: relative;
     z-index: 1;
+    vertical-align: bottom;
+  }
+
+  #gallery-nav {
+    position: fixed;
+    right: 4vw;
+    bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 21;
   }
 
   #gallery-placeholder {
@@ -455,16 +457,17 @@ window.addEventListener('resize', () => {
   <div id="gallery-frame">
     <div id="gallery-img-wrap">
       <img id="gallery-img" src="" alt="">
+      <div class="fade-div"></div>
     </div>
     <div id="gallery-placeholder">
       <div id="gallery-placeholder-rect"></div>
     </div>
   </div>
-  <div id="gallery-nav">
-    <button id="prev-btn">◂</button>
-    <div id="gallery-counter">1 / 1</div>
-    <button id="next-btn">▸</button>
-  </div>
+</div>
+<div id="gallery-nav">
+  <button id="prev-btn">◂</button>
+  <div id="gallery-counter">1 / 3</div>
+  <button id="next-btn">▸</button>
 </div>
 
 <!-- lightbox -->
