@@ -355,7 +355,19 @@ window.addEventListener('resize', () => {
     z-index: 3;
   }
 
+  #gallery-img-wrap .fade-div { display: none; }
+
   #gallery-img {
+    width: 100%;
+    height: auto;
+    display: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    vertical-align: bottom;
+  }
+
+  #gallery-canvas {
     width: 100%;
     height: auto;
     display: none;
@@ -456,7 +468,7 @@ window.addEventListener('resize', () => {
   <div id="gallery-label">// evidence room</div>
   <div id="gallery-frame">
     <div id="gallery-img-wrap">
-      <img id="gallery-img" src="" alt="">
+      <canvas id="gallery-canvas"></canvas>
       <div class="fade-div"></div>
     </div>
     <div id="gallery-placeholder">
@@ -485,18 +497,48 @@ const images = [
 ];
 
 let current = 0;
-const img = document.getElementById('gallery-img');
+const cvs = document.getElementById('gallery-canvas');
+const c2d = cvs.getContext('2d');
 const placeholder = document.getElementById('gallery-placeholder');
 const counter = document.getElementById('gallery-counter');
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
 
+function drawWithFade(imgEl) {
+  const W = imgEl.naturalWidth;
+  const H = imgEl.naturalHeight;
+  cvs.width = W;
+  cvs.height = H;
+  c2d.clearRect(0, 0, W, H);
+  c2d.drawImage(imgEl, 0, 0);
+
+  // fade: only darken pixels that have alpha > 0
+  const imageData = c2d.getImageData(0, 0, W, H);
+  const data = imageData.data;
+  const fadeStart = H * 0.65; // fade begins at 65% down
+  for (let y = 0; y < H; y++) {
+    if (y < fadeStart) continue;
+    const strength = Math.pow((y - fadeStart) / (H - fadeStart), 1.4) * 0.88;
+    for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4;
+      if (data[i + 3] < 10) continue; // skip transparent pixels
+      data[i]     = Math.round(data[i]     * (1 - strength));
+      data[i + 1] = Math.round(data[i + 1] * (1 - strength));
+      data[i + 2] = Math.round(data[i + 2] * (1 - strength));
+    }
+  }
+  c2d.putImageData(imageData, 0, 0);
+  cvs.style.display = 'block';
+  placeholder.style.display = 'none';
+}
+
 function updateGallery() {
   counter.textContent = `${current + 1} / ${images.length}`;
-  img.src = images[current];
-  img.style.display = 'block';
-  document.getElementById('gallery-img-wrap').style.display = 'flex';
-  placeholder.style.display = 'none';
+  cvs.style.display = 'none';
+  const imgEl = new Image();
+  imgEl.crossOrigin = 'anonymous';
+  imgEl.onload = () => drawWithFade(imgEl);
+  imgEl.src = images[current];
 }
 
 document.getElementById('prev-btn').addEventListener('click', () => {
@@ -508,12 +550,11 @@ document.getElementById('next-btn').addEventListener('click', () => {
   updateGallery();
 });
 
-// lightbox open
-img.addEventListener('click', () => {
+// lightbox
+cvs.addEventListener('click', () => {
   lightboxImg.src = images[current];
   lightbox.classList.add('active');
 });
-// lightbox close
 lightbox.addEventListener('click', () => lightbox.classList.remove('active'));
 document.getElementById('lightbox-close').addEventListener('click', e => {
   e.stopPropagation();
